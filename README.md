@@ -1,55 +1,136 @@
-# LLMIP_basic (src_v1) - Input/Output Guide
+# Multi-Round LLM for Opinion Dynamics
 
 ## Overview
-This project runs an LLM-based vaccination attitude simulation using workplace population and network data. It produces per-run outputs as well as aggregated statistics (mean/std) when running batch simulations.
+This project implements a multi-agent simulation where LLM-powered agents engage in multi-round dialogues about vaccination attitudes. Agents interact through a social network, exchange opinions, and update their opinions based on conversations. The system supports batch simulations with aggregated statistics.
 
 ## Inputs
-### Required data files
-Located under the project root:
-- data/input/workplace_36013030400w1_extended_population.csv
-- data/input/workplace_36013030400w1_extended_network.csv
+### Required Data Files
+Located under `data/input/`:
+- `workplace_36013030400w1_extended_population.csv` - Agent population data
+- `workplace_36013030400w1_extended_network.csv` - Social network structure
 
 ### Configuration
-Edit parameters in:
-- src_v1/config.py
+Edit parameters in `config.py`:
 
-Key settings:
-- MAX_STEPS: number of simulation steps per run
-- BATCH_RUNS: number of runs for aggregation
-- MAX_DIALOGS_PER_MICROSTEP: concurrent dialog count
-- BELIEF_DISTRIBUTION_TYPE: neutral / pro / resist
-- BELIEF_MEANS, BELIEF_STD: normal distribution parameters
+**Key Settings:**
+- `MAX_STEPS`: Number of simulation steps per run
+- `BATCH_RUNS`: Number of runs for aggregation
+- `MAX_DIALOGS_PER_MICROSTEP`: Concurrent dialogue limit
+- `OPINION_DISTRIBUTION_TYPE`: Initial opinion distribution (neutral/pro/resist)
+- `API_URL`, `API_KEY`, `MODEL_NAME`: LLM API configuration
+
+## Multi-Round Dialogue System
+
+### Dialogue Structure
+Each conversation consists of **4 rounds** of exchanges:
+1. **Round 1**: Person B initiates the conversation (2-3 sentences)
+2. **Rounds 2-4**: Alternating responses between Person A and B (2-3 sentences each)
+3. **Reflection**: Person A reflects on the conversation and reports updated opinion
+
+### Core Prompts
+
+**Initial Message (Person B):**
+```
+You are Person B having a conversation about vaccination. 
+Your background: {profile}
+Your current attitude: You {attitude_description}
+
+Start a brief conversation with Person A about vaccination (2-3 sentences).
+```
+
+**Subsequent Responses:**
+```
+You are Person A/B responding/continuing.
+Your background: {profile}
+Your current view: You {attitude_description}
+
+Respond naturally to what was said (2-3 sentences).
+```
+
+**Opinion Elicitation:**
+```
+After this conversation, reflect on your current view about vaccination.
+
+Provide a JSON object with:
+{
+  "summary_sentence": "One sentence describing your current view",
+  "opinion_score": <number between -1.0 (strongly oppose) and 1.0 (strongly support)>
+}
+
+Your view BEFORE: You {attitude_description} (score: {opinion_score})
+```
+
+### Opinion Scale
+- **+1.0 to +0.8**: Strongly supports vaccination
+- **+0.8 to +0.5**: Supports vaccination
+- **+0.5 to +0.2**: Leaning towards vaccination
+- **+0.2 to -0.2**: Uncertain
+- **-0.2 to -0.5**: Leaning against vaccination
+- **-0.5 to -0.8**: Opposes vaccination
+- **-0.8 to -1.0**: Strongly opposes vaccination
 
 ## Outputs
-Outputs are created under:
-- data/output/simulation_<timestamp>/
+Output directory: `data/output/simulation_<timestamp>/`
 
-When BATCH_RUNS = 1:
-- run_01/ (per-run outputs)
-- model_data_mean.csv (mean; same as run_01)
-- model_data_std.csv (std; mostly zeros)
+**Single Run (BATCH_RUNS = 1):**
+- `run_01/` - All simulation outputs
+- `model_data_mean.csv` - Model metrics (same as run_01)
+- `model_data_std.csv` - Standard deviation (mostly zeros)
 
-When BATCH_RUNS > 1:
-- run_01/ ... run_NN/ (per-run outputs)
-- model_data_mean.csv (mean across runs)
-- model_data_std.csv (std across runs)
+**Batch Runs (BATCH_RUNS > 1):**
+- `run_01/` ... `run_NN/` - Individual run outputs
+- `model_data_mean.csv` - Mean across all runs
+- `model_data_std.csv` - Standard deviation across runs
+- `visualizations/` - Aggregated visualizations
 
-### Per-run files (inside each run_XX)
-- model_data.csv: step-by-step model metrics
-- agent_data.csv: per-agent metrics by step
-- agent_profiles.json: agent profiles + belief histories
-- all_dialogues.json: dialogue logs
-- most_impactful_dialogues_report.txt: top dialogue summary
-- network_data.json: network topology for visualization
-- visualizations/ (charts and network frames)
+### Per-Run Files (inside each `run_XX/`)
+- `model_data.csv` - Step-by-step metrics (vaccination rate, average opinions, etc.)
+- `agent_data.csv` - Per-agent metrics by step
+- `agent_profiles.json` - Agent profiles and opinion histories
+- `all_dialogues.json` - Complete dialogue logs
+- `most_impactful_dialogues_report.txt` - Top influential dialogues
+- `network_data.json` - Network topology
+- `visualizations/` - Charts and network evolution frames
 
-### Key metrics in model_data.csv
-- Vaccination_Rate
-- Average_Belief_LLM
-- Average_Belief_VADER
-- Belief_Std_Dev_LLM
-- Belief_Std_Dev_VADER
+### Key Metrics
+- `Vaccination_Rate` - Proportion of vaccinated agents
+- `Average_Opinion_LLM` - Mean opinion from LLM elicitation
+- `Opinion_Std_Dev_LLM` - Opinion standard deviation
 
-## Notes
-- network_frames are generated from belief_history. If frames are missing, check that each step appends belief_history (already handled in src_v1/model.py).
-- The aggregated mean/std files summarize final belief and vaccination metrics across runs.
+## Usage
+
+**Run Single Simulation:**
+```bash
+python main.py
+```
+
+**Configure Batch Runs:**
+Edit `config.py`:
+```python
+BATCH_RUNS = 10  # Number of simulation runs
+MAX_STEPS = 20   # Steps per run
+```
+
+## Project Structure
+```
+src_v1/
+├── main.py                    # Entry point
+├── model.py                   # Simulation model
+├── agent.py                   # Agent with dialogue logic
+├── tools.py                   # Utility functions
+├── config.py                  # Configuration
+├── analysis.py                # Data analysis
+├── visualize_batch_results.py # Visualization
+├── requirements.txt           # Dependencies
+└── data/
+    └── input/                 # Input CSV files
+```
+
+## Requirements
+- Python 3.8+
+- See `requirements.txt` for dependencies
+
+Install dependencies:
+```bash
+pip install -r requirements.txt
+```
