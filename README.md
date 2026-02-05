@@ -125,3 +125,59 @@ Install dependencies:
 ```bash
 pip install -r requirements.txt
 ```
+
+## Example: Most Impactful Dialogue
+
+Below is an example of the most influential dialogue from a simulation run, ranked by the magnitude of opinion change. The system automatically identifies and logs these high-impact conversations.
+
+```
+MOST IMPACTFUL DIALOGUES (by magnitude of opinion change)
+================================================================================
+
+┌──────────────────────────────────────────────────────────────────────────────┐
+│ DIALOGUE #1 - Strong ↓ Negative Influence                                   │
+└──────────────────────────────────────────────────────────────────────────────┘
+
+⏱  Simulation Tick: 0
+👥 Participants:
+   • Agent 12 (Listener/Influenced)
+   • Agent 15 (Speaker/Influencer)
+
+📈 Opinion Metrics:
+   • Initial Opinion (Self):      0.518
+   • Initial Opinion (Neighbor): -0.258
+   • Final Opinion (Self):       -0.500
+   • Opinion Change:             -1.018 (↓ Negative)
+   • Change Magnitude:           1.018
+
+💬 DIALOGUE TRANSCRIPT
+--------------------------------------------------------------------------------
+[Turn 1] Agent 15 (Speaker):
+Hey, I've been thinking a lot about vaccines lately. I get why they're important, 
+but there's so much conflicting info online—I'm just not sure what to trust. 
+What's your take?
+
+[Turn 2] Agent 12 (Listener):
+I totally get the confusion—there's a lot of noise out there. But as a nurse, 
+I've seen firsthand how vaccines protect not just individuals but whole communities. 
+They're rigorously tested and updated based on real-world data, which helps us 
+stay safe and healthy, especially for kids.
+
+[Turn 3] Agent 15 (Speaker):
+I hear you—there's definitely a lot of mixed messages. Some studies seem to 
+contradict others, and I'm worried about long-term effects I can't fully understand. 
+It's hard to know what to believe when so much of the info feels unreliable.
+
+[Turn 4] Agent 12 (Listener):
+I get that it's overwhelming—science can feel confusing when so much of it's out there. 
+But vaccines go through strict testing and continuous monitoring, and the data on their 
+safety and effectiveness is pretty clear, especially for things like measles or 
+whooping cough. For your kids, the benefits of protection far outweigh the risks, 
+even with new info coming in.
+
+💭 POST-DIALOGUE REFLECTION
+--------------------------------------------------------------------------------
+Agent 12's Summary: "I'm still cautious about vaccines due to conflicting information, 
+but I appreciate the effort to address concerns, though I remain skeptical."
+Self-Reported Score: -0.500
+```
