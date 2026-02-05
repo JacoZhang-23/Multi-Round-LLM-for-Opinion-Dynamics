@@ -60,15 +60,6 @@ Provide a JSON object with:
 Your view BEFORE: You {attitude_description} (score: {opinion_score})
 ```
 
-### Opinion Scale
-- **+1.0 to +0.8**: Strongly supports vaccination
-- **+0.8 to +0.5**: Supports vaccination
-- **+0.5 to +0.2**: Leaning towards vaccination
-- **+0.2 to -0.2**: Uncertain
-- **-0.2 to -0.5**: Leaning against vaccination
-- **-0.5 to -0.8**: Opposes vaccination
-- **-0.8 to -1.0**: Strongly opposes vaccination
-
 ## Outputs
 Output directory: `data/output/simulation_<timestamp>/`
 
